@@ -8,4 +8,5 @@ Route.group(() => {
   Route.get('post/:id', 'PostController.show')
   Route.get('post', 'PostController.index')
   Route.patch('post/:id', 'PostController.update')
+  Route.delete('post/:id', 'PostController.destroy')
 }).prefix('api')

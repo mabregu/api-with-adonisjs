@@ -44,4 +44,10 @@ export default class PostController {
 
     return post
   }
+
+  public async destroy({ params }: HttpContextContract) {
+    const post = await Post.findOrFail(params.id)
+
+    return await post.delete()
+  }
 }

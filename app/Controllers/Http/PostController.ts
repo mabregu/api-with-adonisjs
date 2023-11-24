@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Post from 'App/Models/Post'
 import PostValidator from 'App/Validators/PostValidator'
 
 export default class PostController {
@@ -9,6 +10,16 @@ export default class PostController {
 
     await post?.preload('user')
     await post?.preload('category')
+
+    return post
+  }
+
+  public async show({ params }: HttpContextContract) {
+    const post = await Post.query()
+      .where('id', params.id)
+      .preload('user')
+      .preload('category')
+      .firstOrFail()
 
     return post
   }

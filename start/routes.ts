@@ -7,4 +7,5 @@ Route.group(() => {
   Route.post('post', 'PostController.store').middleware('auth')
   Route.get('post/:id', 'PostController.show')
   Route.get('post', 'PostController.index')
+  Route.patch('post/:id', 'PostController.update')
 }).prefix('api')

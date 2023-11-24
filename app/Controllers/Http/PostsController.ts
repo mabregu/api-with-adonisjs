@@ -5,7 +5,7 @@ import UpdatePostValidator from 'App/Validators/UpdatePostValidator'
 
 export default class PostController {
   public async index() {
-    const posts = await Post.query().preload('user').preload('category')
+    const posts = await Post.query().preload('user').preload('category').preload('comment')
 
     return posts
   }
@@ -26,6 +26,7 @@ export default class PostController {
       .where('id', params.id)
       .preload('user')
       .preload('category')
+      .preload('comment')
       .firstOrFail()
 
     return post
@@ -41,6 +42,7 @@ export default class PostController {
 
     await post.preload('user')
     await post.preload('category')
+    await post.preload('comment')
 
     return post
   }

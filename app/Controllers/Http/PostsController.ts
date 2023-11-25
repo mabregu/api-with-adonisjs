@@ -4,8 +4,15 @@ import CreatePostValidator from 'App/Validators/CreatePostValidator'
 import UpdatePostValidator from 'App/Validators/UpdatePostValidator'
 
 export default class PostController {
-  public async index() {
-    const posts = await Post.query().preload('user').preload('category').preload('comment')
+  public async index({ request }: HttpContextContract) {
+    const page = request.input('page', 1)
+    const perPage = request.input('per_page', 25)
+
+    const posts = await Post.query()
+      .preload('user')
+      .preload('category')
+      .preload('comment')
+      .paginate(page, perPage)
 
     return posts
   }

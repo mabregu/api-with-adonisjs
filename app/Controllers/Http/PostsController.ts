@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import UnauthorizedException from 'App/Exceptions/UnauthorizedException'
 import Post from 'App/Models/Post'
 import CreatePostValidator from 'App/Validators/CreatePostValidator'
 import SortValidator from 'App/Validators/SortValidator'
@@ -54,10 +55,14 @@ export default class PostController {
     return post
   }
 
-  public async update({ request, params }: HttpContextContract) {
+  public async update({ request, params, auth }: HttpContextContract) {
     const post = await Post.findOrFail(params.id)
 
     const validatedData = await request.validate(UpdatePostValidator)
+
+    if (auth.user?.id !== post.userId) {
+      throw new UnauthorizedException('You can only edit your own posts.')
+    }
 
     post.merge(validatedData)
     await post.save()
@@ -69,8 +74,12 @@ export default class PostController {
     return post
   }
 
-  public async destroy({ params }: HttpContextContract) {
+  public async destroy({ params, auth }: HttpContextContract) {
     const post = await Post.findOrFail(params.id)
+
+    if (auth.user?.id !== post.userId) {
+      throw new UnauthorizedException('You can only delete your own posts.')
+    }
 
     return await post.delete()
   }

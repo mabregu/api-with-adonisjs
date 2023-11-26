@@ -1,10 +1,9 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Comment from 'App/Models/Comment'
 import Post from 'App/Models/Post'
 import CommentValidator from 'App/Validators/CommentValidator'
 
 export default class CommentsController {
-  public async store({ request, params, auth }: HttpContextContract) {
+  public async store({ request, params, auth, response }: HttpContextContract) {
     const { content } = await request.validate(CommentValidator)
 
     const post = await Post.findOrFail(params.post_id)
@@ -17,6 +16,6 @@ export default class CommentsController {
     await comment.preload('user')
     await comment.preload('post')
 
-    return comment
+    return response.created({ data: comment })
   }
 }

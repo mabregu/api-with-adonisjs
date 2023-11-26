@@ -1,5 +1,5 @@
 import { Exception } from '@adonisjs/core/build/standalone'
-
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 /*
 |--------------------------------------------------------------------------
 | Exception
@@ -17,7 +17,7 @@ export default class UnauthorizedException extends Exception {
     super(message, 403)
   }
 
-  public async handle(error: this, {}) {
-    return error.message
+  public async handle(error: this, { response }: HttpContextContract) {
+    return response.forbidden({ message: error.message })
   }
 }

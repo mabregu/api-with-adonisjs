@@ -6,7 +6,7 @@ import SortValidator from 'App/Validators/SortValidator'
 import UpdatePostValidator from 'App/Validators/UpdatePostValidator'
 
 export default class PostController {
-  public async index({ request }: HttpContextContract) {
+  public async index({ request, response }: HttpContextContract) {
     const page = request.input('page', 1)
     const perPage = request.input('per_page', 25)
     const userId = request.input('user_id')
@@ -30,10 +30,10 @@ export default class PostController {
       .preload('comment')
       .paginate(page, perPage)
 
-    return posts
+    return response.ok({ data: posts })
   }
 
-  public async store({ request, auth }: HttpContextContract) {
+  public async store({ request, auth, response }: HttpContextContract) {
     const validatedData = await request.validate(CreatePostValidator)
 
     const post = await auth.user?.related('post').create(validatedData)
@@ -41,10 +41,10 @@ export default class PostController {
     await post?.preload('user')
     await post?.preload('category')
 
-    return post
+    return response.created({ data: post })
   }
 
-  public async show({ params }: HttpContextContract) {
+  public async show({ params, response }: HttpContextContract) {
     const post = await Post.query()
       .where('id', params.id)
       .preload('user')
@@ -52,10 +52,10 @@ export default class PostController {
       .preload('comment')
       .firstOrFail()
 
-    return post
+    return response.ok({ data: post })
   }
 
-  public async update({ request, params, auth }: HttpContextContract) {
+  public async update({ request, params, auth, response }: HttpContextContract) {
     const post = await Post.findOrFail(params.id)
 
     const validatedData = await request.validate(UpdatePostValidator)
@@ -71,16 +71,18 @@ export default class PostController {
     await post.preload('category')
     await post.preload('comment')
 
-    return post
+    return response.ok({ data: post })
   }
 
-  public async destroy({ params, auth }: HttpContextContract) {
+  public async destroy({ params, auth, response }: HttpContextContract) {
     const post = await Post.findOrFail(params.id)
 
     if (auth.user?.id !== post.userId) {
       throw new UnauthorizedException('You can only delete your own posts.')
     }
 
-    return await post.delete()
+    await post.delete()
+
+    return response.noContent()
   }
 }

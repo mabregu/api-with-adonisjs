@@ -1,6 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Post from 'App/Models/Post'
 import CreatePostValidator from 'App/Validators/CreatePostValidator'
+import SortValidator from 'App/Validators/SortValidator'
 import UpdatePostValidator from 'App/Validators/UpdatePostValidator'
 
 export default class PostController {
@@ -9,6 +10,12 @@ export default class PostController {
     const perPage = request.input('per_page', 25)
     const userId = request.input('user_id')
     const categoryId = request.input('category_id')
+
+    const validatedData = await request.validate(SortValidator)
+
+    const sortBy = validatedData.sort_by || 'id'
+    const order = validatedData.order || 'asc'
+
     const posts = await Post.query()
       .if(userId, (query) => {
         query.where('user_id', userId)
@@ -16,6 +23,7 @@ export default class PostController {
       .if(categoryId, (query) => {
         query.where('category_id', categoryId)
       })
+      .orderBy(sortBy, order)
       .preload('user')
       .preload('category')
       .preload('comment')

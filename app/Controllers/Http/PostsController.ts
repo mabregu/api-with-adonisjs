@@ -7,8 +7,15 @@ export default class PostController {
   public async index({ request }: HttpContextContract) {
     const page = request.input('page', 1)
     const perPage = request.input('per_page', 25)
-
+    const userId = request.input('user_id')
+    const categoryId = request.input('category_id')
     const posts = await Post.query()
+      .if(userId, (query) => {
+        query.where('user_id', userId)
+      })
+      .if(categoryId, (query) => {
+        query.where('category_id', categoryId)
+      })
       .preload('user')
       .preload('category')
       .preload('comment')

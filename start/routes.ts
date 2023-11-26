@@ -4,11 +4,11 @@ Route.group(() => {
   Route.post('auth/register', 'AuthController.register')
   Route.post('auth/login', 'AuthController.login')
 
-  Route.post('post', 'PostsController.store').middleware('auth')
-  Route.get('post/:id', 'PostsController.show')
-  Route.get('post', 'PostsController.index')
-  Route.patch('post/:id', 'PostsController.update')
-  Route.delete('post/:id', 'PostsController.destroy')
+  Route.resource('post', 'PostsController').apiOnly().middleware({
+    store: 'auth',
+    update: 'auth',
+    destroy: 'auth',
+  })
 
-  Route.post('post/:post_id/comment', 'CommentsController.store').middleware('auth')
+  Route.resource('post.comment', 'CommentsController').only(['store']).middleware({ store: 'auth' })
 }).prefix('api')
